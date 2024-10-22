@@ -40,7 +40,7 @@ def parse_separated_header(value: str):
 
     m = Message()
     m["content-type"] = value
-    return dict(m.get_params())
+    return dict(m.get_params() or [])
 
 
 class HTTPDownloaderBase(DownloaderBase):
@@ -122,8 +122,8 @@ class HTTPDownloaderBase(DownloaderBase):
         headers = self.headers()
         if "content-disposition" in headers:
             value, params = parse_separated_header(headers["content-disposition"])
-            if "filename" in params:
-                return params["filename"]
+            if isinstance(params, dict) and "filename" in params:
+                return params.get("filename", super().title())
         return super().title()
 
     def transfer(self, f, pbar):
